@@ -7,8 +7,8 @@ import Game  from './Game'
 const config = {
     type: Phaser.CANVAS,
     resolution: 10,
-    width: 920 * window.devicePixelRatio, 
-    height: 550  * window.devicePixelRatio,
+    width: 920 , 
+    height: 550,
     scale: {
         mode: Phaser.Scale.FIT,  
         parent: 'gameFrame',

@@ -15,12 +15,12 @@ touching = false
 let ballHitSound, ballFall
 
 let golfHole,
-golfBall,
+golfBall, skew,
 arrow, tween, value = 0.02
 
 let winTimeout, hitTimeout
 
-let speed, power
+let scaleValue
 
 export default class Game extends Phaser.Scene{
 
@@ -51,11 +51,12 @@ export default class Game extends Phaser.Scene{
         ballHitSound = this.sound.add('ball-hit')
         ballFall = this.sound.add('ball-fall')
 
-        this.bg = this.add.image(360, 530, 'bg')
+        this.bg = this.add.image(460, 275, 'bg')
         let logo = this.add.image(80,50,'logo')
         golfHole = this.add.image(500,55,'golf-hole')
-        golfBall = new Ball(this.matter.world, 500,600,'golf-ball', undefined)
-        arrow = new Arrow(this,500,590,'arrow',undefined)
+        golfHole
+        golfBall = new Ball(this.matter.world, 475,470,'golf-ball', undefined)
+        arrow = new Arrow(this,475,480,'arrow',undefined)
         this.circle =  this.add.circle(500, 55, 12, 0xFF0000).setVisible(false)
 
         mouse = this.input.activePointer;
@@ -74,13 +75,28 @@ export default class Game extends Phaser.Scene{
             },
             onYoyo: function(tween){
                     value *= -1
-                    console.log('Yoyo value: '+value)
                 },
             onComplete: function(){
                 arrow.rotation += value
-                console.log('Completed value '+value)
             }
         });
+
+        // skew =   this.tweens.add({
+        //     targets: golfBall,
+        //     duration: 1000,
+        //     ease: 'Sine.easeInOut',
+        //     yoyo: true,
+        //     onUpdate: function(){
+        //         // golfBall.inertia = 0.1
+        //         // golfBall.thrustLeft(0.01)
+                    
+        //         vx = -Math.cos(arrow.rotation) * 0.2
+        //         vy = Math.sin(arrow.rotation) * 0.2
+        //         golfBall.applyForceFromPositon(golfBall.x, 0.02, {x: 0.05, y: 0.05})
+        //         console.log("in update")
+        //     }
+        // });
+        // skew.stop();
 
         this.input.on('pointerup', function () {
             if(touching === true){
@@ -98,16 +114,13 @@ export default class Game extends Phaser.Scene{
     update()
     {
         console.log('mouse:' +mouse.isDown)
-        // console.log("Speed: "+speed)
-        //dynamic power setup
-        power = this.map(speed, 0, 1, 0, 3.5)
-        // console.log('Power: '+power)
-
+    
            if(this.checkPoint(golfBall.x.toFixed(), golfBall.y.toFixed(),this.circle.x, this.circle.y, 12) === true){
             if(win === false)
             { 
                 win = true
                 this.goal()
+                this.resetGame()
              }        
          }
          if(ballOnground === true){
@@ -127,13 +140,13 @@ export default class Game extends Phaser.Scene{
                    //restart game logic
         if( hit === true && gameOver === false){
             if( win === true){
-                if(gameReset === false)
-                { 
+                // if(gameReset === false)
+                // { 
                     gameReset = true
                     start = false
                    // ballFall.stop()
                     this.resetGame()
-                }
+                // }
             }
         }
          }
@@ -158,6 +171,8 @@ export default class Game extends Phaser.Scene{
                 //console.log("Power"+power)
                 if(hit === false && swing === true){
                         this.hitBall()
+                        // golfBall.scale = scaleValue
+                        // scaleValue -= 0.01
                     }
                 }
     }
@@ -173,13 +188,11 @@ export default class Game extends Phaser.Scene{
         }, 4000);
         ballHitSound.play()
 
-        golfBall.setIgnoreGravity(false)
-
         this.vx = -Math.cos(arrow.rotation) * 0.5
         this.vy = Math.sin(arrow.rotation) * 0.5
 
-        console.log("Vx: "+this.vx)
-        console.log("Vy:"+this.vy)
+        // console.log("Vx: "+vx)
+        // console.log("Vy:"+vy)
 
         // golfBall.setFrictionAir(0.01)
 
