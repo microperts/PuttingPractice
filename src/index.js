@@ -2,6 +2,9 @@ import Phaser from 'phaser'
 
 import Preloader from './Preloader'
 import Game  from './Game'
+import SendHighScore from './sendHighScore';
+import SendToFriend from './sendToFriend';
+import GameOver from './gameOver';
 
 
 const config = {
@@ -18,9 +21,12 @@ const config = {
         matter: {
 			gravity: { y: 0 },
             debug:true
-		}
+		},
     },
-    scene:[Preloader, Game] 
+    dom: {
+        createContainer: true
+    },
+    scene:[Preloader, Game, GameOver, SendToFriend, SendHighScore] 
 };
 
 let  game = new Phaser.Game(config);

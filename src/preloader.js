@@ -24,6 +24,12 @@ export default class Preloader extends Phaser.Scene
         this.load.image('congrats', './assets/Congrats2.png');
         this.load.image('0score', './assets/0score.png');
         this.load.image('score', './assets/Score2.png');
+        this.load.image('trail', './assets/trail.png')
+
+
+        this.load.html('nameform', './form.html');
+        this.load.html('highscoreForm', './highScoreForm.html');
+
     }
 
     create()

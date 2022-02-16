@@ -12,15 +12,15 @@ swing = false, ballOnground = false,
 gameOver = false, gameReset = false, start = true,
 touching = false
 
-let ballHitSound, ballFall
+let ballHitSound, ballFall, graphics, curve, path
 
 let golfHole,
-golfBall, skew,
-arrow, tween, value = 0.02
+golfBall,
+arrow, tween, value = 0.02, circleValue
 
-let winTimeout, hitTimeout
+let winTimeout, hitTimeout, slopeTimeOut
 
-let scaleValue
+let x, y
 
 export default class Game extends Phaser.Scene{
 
@@ -43,6 +43,7 @@ export default class Game extends Phaser.Scene{
 
         window.clearTimeout(winTimeout)
         window.clearTimeout(hitTimeout)
+        window.clearTimeout(slopeTimeOut)
     }
 
     create()
@@ -51,13 +52,18 @@ export default class Game extends Phaser.Scene{
         ballHitSound = this.sound.add('ball-hit')
         ballFall = this.sound.add('ball-fall')
 
+        circleValue =  Math.random() * (0.06 - 0.02) + 0.02 
+        circleValueY = Math.random() * (0.06 - 0.02) + 0.02
         this.bg = this.add.image(460, 275, 'bg')
-        let logo = this.add.image(80,50,'logo')
-        golfHole = this.add.image(500,55,'golf-hole')
-        golfHole
+        golfHole = this.add.image(500,140,'golf-hole')
+        golfHole.setScale(0.45)
         golfBall = new Ball(this.matter.world, 475,470,'golf-ball', undefined)
+        // golfBall.body.collisionFilter.mask = 0     
         arrow = new Arrow(this,475,480,'arrow',undefined)
-        this.circle =  this.add.circle(500, 55, 12, 0xFF0000).setVisible(false)
+        this.circle =  this.add.circle(500, 140, 8, 0xFF0000)
+        this.degree = Phaser.Math.RadToDeg(circleValue)
+
+        this.add.text(70,500,'Slope: ' +this.degree.toFixed(2) +' deg')
 
         mouse = this.input.activePointer;
 
@@ -67,36 +73,27 @@ export default class Game extends Phaser.Scene{
             to: 1,
             ease: 'Sine.linear',
             yoyo: true,
-            onUpdate: function (tween)
+            onUpdate: function ()
             {
-               arrow.rotation +=value
-               console.log("in tween"+arrow.rotation)
-
+                arrow.rotation +=value
+                var radius = 60;
+                var angle  = arrow.angle
+                x = radius * Math.sin(Math.PI * 2 * angle / 360) 
+                y = radius * Math.cos(Math.PI * 2 * angle / 360) 
+                // console.log('Points coors are  x='+ 
+                //    Math.round(x * 100) / 100 +', y=' +
+                //    Math.round(y * 100) / 100)
+                x =  (Math.round(x * 100) / 100 ) * 0.08
+                y = (Math.round(y * 100) / 100) * 0.08
             },
-            onYoyo: function(tween){
+            onYoyo: function(){
                     value *= -1
                 },
             onComplete: function(){
                 arrow.rotation += value
+                console.log("in complete" +arrow.rotation)
             }
         });
-
-        // skew =   this.tweens.add({
-        //     targets: golfBall,
-        //     duration: 1000,
-        //     ease: 'Sine.easeInOut',
-        //     yoyo: true,
-        //     onUpdate: function(){
-        //         // golfBall.inertia = 0.1
-        //         // golfBall.thrustLeft(0.01)
-                    
-        //         vx = -Math.cos(arrow.rotation) * 0.2
-        //         vy = Math.sin(arrow.rotation) * 0.2
-        //         golfBall.applyForceFromPositon(golfBall.x, 0.02, {x: 0.05, y: 0.05})
-        //         console.log("in update")
-        //     }
-        // });
-        // skew.stop();
 
         this.input.on('pointerup', function () {
             if(touching === true){
@@ -109,38 +106,34 @@ export default class Game extends Phaser.Scene{
             }
             //console.log('arrowset: '+ arrowSet + " powerset: " + powerSet)        
         });
+
     }
     
     update()
-    {
-        console.log('mouse:' +mouse.isDown)
-    
-           if(this.checkPoint(golfBall.x.toFixed(), golfBall.y.toFixed(),this.circle.x, this.circle.y, 12) === true){
+    {    
+        if(this.checkPoint(golfBall.x, golfBall.y,this.circle.x, this.circle.y, 12) === true){
             if(win === false)
             { 
                 win = true
                 this.goal()
                 this.resetGame()
-             }        
+            }        
          }
          if(ballOnground === true){
-             console.log('game over')
-             if(this.checkPoint(golfBall.x.toFixed(), golfBall.y.toFixed(),this.circle.x, this.circle.y, 12) === false) {
-                 ballOnground = false
-                //  gameOver = true
-                //  this.scene.pause('game');
-                //  this.scene.launch('gameover', {score: score})
-                //  score = 0
-                //  gameOver = false
-                //  value = 1.5
-                //  touching = false
-                //  tween.restart()
-                    this.resetGame()
+            //  console.log('game over')
+             if(this.checkPoint(golfBall.x, golfBall.y,this.circle.x, this.circle.y, 12) === false) {
+                    ballOnground = false
+                    gameOver = true
+                    this.scene.pause('game');
+                    this.scene.launch('gameover')
+                    gameOver = false
+                    score = 0
+                    touching = false
                 }
                    //restart game logic
         if( hit === true && gameOver === false){
             if( win === true){
-                // if(gameReset === false)
+                if(gameReset === false)
                 // { 
                     gameReset = true
                     start = false
@@ -154,7 +147,6 @@ export default class Game extends Phaser.Scene{
         // if(mouse.isDown === true){
             if(arrowSet === false){
                 tween.play()
-                // arrow.rotation = Phaser.Math.Angle.Wrap(-Math.PI/2)
                 touching = true 
             }
 
@@ -164,15 +156,14 @@ export default class Game extends Phaser.Scene{
                 tween.stop()
                 let y = arrow.rotation
                 arrow.setRotation(y)
-                console.log('in update:'+arrow.rotation)
                 swing = true
             }
             else {
                 //console.log("Power"+power)
                 if(hit === false && swing === true){
                         this.hitBall()
-                        // golfBall.scale = scaleValue
-                        // scaleValue -= 0.01
+                        this.scaleBall()
+                        this.slope()
                     }
                 }
     }
@@ -188,18 +179,39 @@ export default class Game extends Phaser.Scene{
         }, 4000);
         ballHitSound.play()
 
-        this.vx = -Math.cos(arrow.rotation) * 0.5
-        this.vy = Math.sin(arrow.rotation) * 0.5
+        golfBall.setVelocity(x,-y)
 
-        // console.log("Vx: "+vx)
-        // console.log("Vy:"+vy)
-
-        // golfBall.setFrictionAir(0.01)
-
-        golfBall.applyForce({x: this.vy, y: this.vx})
         golfBall.setFixedRotation()
 
         hit = true
+    }
+
+    slope()
+    {
+       slopeTimeOut =  setTimeout(()=>{
+            
+                let vec = new Phaser.Math.Vector2(circleValue,0.02)
+                this.vx = golfBall.body.velocity.x + vec.x
+                this.vy = golfBall.body.velocity.y + vec.y
+
+                console.log("velocity x "+this.vx)
+
+                golfBall.setVelocity(this.vx,this.vy)
+                this.slope()
+        }, 100)
+    }
+
+    scaleBall(){
+
+        setTimeout(()=>{ 
+            this.tweens.add({
+                targets: golfBall,
+                scaleX: '-=.25',
+                scaleY: '-=.25',
+                duration: 900,
+                ease: 'Linear',
+             });
+        },450)
     }
 
     //when ball is put in cup 
@@ -216,7 +228,7 @@ export default class Game extends Phaser.Scene{
     //    this.scene.destroy("game")
         this.scene.stop('game')
         window.parent.data.on_game_exit()
-        console.log('After parent data')
+        // console.log('After parent data')
     }
 
     //reset game
