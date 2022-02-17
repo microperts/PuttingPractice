@@ -4,13 +4,12 @@ import Arrow from './arrow'
 import Ball from './ball'
 
 
-let score = 0
+let score = 0, bestScore = 0
 let mouse
 let hit = false, win = false, 
 arrowSet = false, powerSet = false,
 swing = false, ballOnground = false, 
-gameOver = false, gameReset = false, start = true,
-touching = false
+gameOver = false, gameReset = false, start = true
 
 let ballHitSound, ballFall, graphics, curve, path
 
@@ -38,12 +37,14 @@ export default class Game extends Phaser.Scene{
         arrowSet = false
         ballOnground = false
         gameReset = false
-        touching = false
         gameOver = false
+        win = false
 
         window.clearTimeout(winTimeout)
         window.clearTimeout(hitTimeout)
         window.clearTimeout(slopeTimeOut)
+
+        circleValue =  Math.random() * (0.06 - 0.01) + 0.01
     }
 
     create()
@@ -52,18 +53,18 @@ export default class Game extends Phaser.Scene{
         ballHitSound = this.sound.add('ball-hit')
         ballFall = this.sound.add('ball-fall')
 
-        circleValue =  Math.random() * (0.06 - 0.02) + 0.02 
-        circleValueY = Math.random() * (0.06 - 0.02) + 0.02
         this.bg = this.add.image(460, 275, 'bg')
         golfHole = this.add.image(500,140,'golf-hole')
         golfHole.setScale(0.45)
         golfBall = new Ball(this.matter.world, 475,470,'golf-ball', undefined)
-        // golfBall.body.collisionFilter.mask = 0     
-        arrow = new Arrow(this,475,480,'arrow',undefined)
-        this.circle =  this.add.circle(500, 140, 8, 0xFF0000)
+        arrow = new Arrow(this,475,460,'arrow',undefined)
+        this.circle =  this.add.circle(500, 140, 8, 0xFF0000).setVisible(false)
         this.degree = Phaser.Math.RadToDeg(circleValue)
 
-        this.add.text(70,500,'Slope: ' +this.degree.toFixed(2) +' deg')
+
+        this.add.text(70,500,'Slope: ' +this.degree.toFixed(2) +'°', {fontFamily: 'Chunk'})
+        this.add.text(700,450,'Score: ' +score, {fontFamily: 'Chunk'})
+        this.add.text(700,500,'Best Score: ' +bestScore, {fontFamily: 'Chunk'})
 
         mouse = this.input.activePointer;
 
@@ -83,8 +84,8 @@ export default class Game extends Phaser.Scene{
                 // console.log('Points coors are  x='+ 
                 //    Math.round(x * 100) / 100 +', y=' +
                 //    Math.round(y * 100) / 100)
-                x =  (Math.round(x * 100) / 100 ) * 0.08
-                y = (Math.round(y * 100) / 100) * 0.08
+                x =  (Math.round(x * 100) / 100 ) * 0.085
+                y = (Math.round(y * 100) / 100) * 0.085
             },
             onYoyo: function(){
                     value *= -1
@@ -96,14 +97,12 @@ export default class Game extends Phaser.Scene{
         });
 
         this.input.on('pointerup', function () {
-            if(touching === true){
                 if(arrowSet === true){
                     powerSet = true
                 }
                 else {
                     arrowSet = true
                 }
-            }
             //console.log('arrowset: '+ arrowSet + " powerset: " + powerSet)        
         });
 
@@ -111,7 +110,7 @@ export default class Game extends Phaser.Scene{
     
     update()
     {    
-        if(this.checkPoint(golfBall.x, golfBall.y,this.circle.x, this.circle.y, 12) === true){
+        if(this.checkPoint(golfBall.x, golfBall.y,this.circle.x, this.circle.y, 10) === true){
             if(win === false)
             { 
                 win = true
@@ -121,33 +120,31 @@ export default class Game extends Phaser.Scene{
          }
          if(ballOnground === true){
             //  console.log('game over')
-             if(this.checkPoint(golfBall.x, golfBall.y,this.circle.x, this.circle.y, 12) === false) {
+             if(this.checkPoint(golfBall.x, golfBall.y,this.circle.x, this.circle.y, 10) === false) {
                     ballOnground = false
                     gameOver = true
                     this.scene.pause('game');
                     this.scene.launch('gameover')
                     gameOver = false
                     score = 0
-                    touching = false
                 }
-                   //restart game logic
+         }
+                      //restart game logic
         if( hit === true && gameOver === false){
             if( win === true){
                 if(gameReset === false)
-                // { 
-                    gameReset = true
+                { 
                     start = false
+                    ballOnground = false
                    // ballFall.stop()
                     this.resetGame()
-                // }
+                }
             }
         }
-         }
 
         // if(mouse.isDown === true){
             if(arrowSet === false){
                 tween.play()
-                touching = true 
             }
 
             if(powerSet === false && arrowSet === true){
@@ -176,12 +173,10 @@ export default class Game extends Phaser.Scene{
                 return
             }
             ballOnground = true
-        }, 4000);
+        }, 5000);
         ballHitSound.play()
 
         golfBall.setVelocity(x,-y)
-
-        golfBall.setFixedRotation()
 
         hit = true
     }
@@ -190,7 +185,7 @@ export default class Game extends Phaser.Scene{
     {
        slopeTimeOut =  setTimeout(()=>{
             
-                let vec = new Phaser.Math.Vector2(circleValue,0.02)
+                let vec = new Phaser.Math.Vector2(circleValue , 0)
                 this.vx = golfBall.body.velocity.x + vec.x
                 this.vy = golfBall.body.velocity.y + vec.y
 
@@ -198,7 +193,7 @@ export default class Game extends Phaser.Scene{
 
                 golfBall.setVelocity(this.vx,this.vy)
                 this.slope()
-        }, 100)
+        }, 50)
     }
 
     scaleBall(){
@@ -206,12 +201,12 @@ export default class Game extends Phaser.Scene{
         setTimeout(()=>{ 
             this.tweens.add({
                 targets: golfBall,
-                scaleX: '-=.25',
-                scaleY: '-=.25',
+                scaleX: '-=.3',
+                scaleY: '-=.3',
                 duration: 900,
                 ease: 'Linear',
              });
-        },450)
+        },600)
     }
 
     //when ball is put in cup 
@@ -222,6 +217,15 @@ export default class Game extends Phaser.Scene{
         golfBall.setVisible(false)
 
         score += 1
+        if(bestScore < score){
+            bestScore = score
+        }
+        // if(bestScore === score){
+        //     console.log(bestscore)
+        // }
+        // else {
+        //     bestScore += score
+        // }
     }
 
     exitGame(){

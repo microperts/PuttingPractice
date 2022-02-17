@@ -5,28 +5,30 @@ import Game  from './Game'
 import SendHighScore from './sendHighScore';
 import SendToFriend from './sendToFriend';
 import GameOver from './gameOver';
+import PrizeScreen from './prizeScreen';
+import IntroScreen from './introScreen';
 
 
 const config = {
-    type: Phaser.CANVAS,
+    type: Phaser.AUTO,
     resolution: 10,
-    width: 920 , 
+    width: 1500 , 
     height: 550,
     scale: {
         mode: Phaser.Scale.FIT,  
-        parent: 'gameFrame',
+        // parent: 'gameFrame',
     },
     physics: {
         default: 'matter',
         matter: {
 			gravity: { y: 0 },
-            debug:true
+            debug:false
 		},
     },
     dom: {
         createContainer: true
     },
-    scene:[Preloader, Game, GameOver, SendToFriend, SendHighScore] 
+    scene:[Preloader,Game, PrizeScreen ,IntroScreen, GameOver, SendToFriend, SendHighScore] 
 };
 
 let  game = new Phaser.Game(config);

@@ -15,13 +15,18 @@ export default class GameOver extends Phaser.Scene {
 
     create()
     {
-        this.textStyle = {fontSize: '22px', fontFamily: 'Chunk',  color: 'white' }
+        this.textStyle = { fontSize: '16px', fontFamily: 'Chunk',  color: 'white' }
 
         // let back = this.add.image(470,75,'back')
-        let restart = this.add.text(470,110,'Play Again',this.textStyle).setInteractive({ useHandCursor: true  })
+        this.gameOverScreen = this.add.image(450,275, 'gameover', undefined).setScale(0.6)
+        this.add.image(667,205, 'btnbg', undefined).setScale(0.6)
+        this.add.image(667,290, 'btnbg', undefined).setScale(0.6)
+        this.add.image(667,375, 'btnbg', undefined).setScale(0.6)
 
-        let sendToFriend = this.add.text(0,140,'Send to Friend',this.textStyle).setInteractive({ useHandCursor: true  })
-        let sendHighScore = this.add.text(0,170,'Send high score',this.textStyle).setInteractive({ useHandCursor: true  })
+        let restart = this.add.text(630,195,'Play Again',this.textStyle).setInteractive({ useHandCursor: true  })
+
+        let sendToFriend = this.add.text(620,280,'Send to Friend',this.textStyle).setInteractive({ useHandCursor: true  })
+        let sendHighScore = this.add.text(620,365,'Send high score',this.textStyle).setInteractive({ useHandCursor: true  })
         // back.setScale(0.5)
         // if(points === 0){
         //     label = this.add.image(100,20, '0score')
@@ -31,7 +36,7 @@ export default class GameOver extends Phaser.Scene {
         //     label = this.add.image(120,5, 'congrats')
         // }
 
-        this.container = this.add.container(350, 35 ,[sendToFriend, sendHighScore])
+        // this.container = this.add.container(350, 35 ,[sendToFriend, sendHighScore])
 
         restart.on('pointerup', ()=>{
             this.registry.destroy()

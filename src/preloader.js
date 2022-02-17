@@ -10,6 +10,11 @@ export default class Preloader extends Phaser.Scene
     preload()
     {
         this.load.image('bg', './assets/bg1.png');
+        this.load.image('prize', './assets/prize.png');
+        this.load.image('continue', './assets/continue2.png');
+        this.load.image('btnbg', './assets/Continue.png');
+        this.load.image('intro', './assets/introScreen.png');
+        this.load.image('gameover', './assets/gameover.png');
         
         this.load.image('arrow', './assets/arroww.png');
         this.load.image('bar', './assets/powerBar.png');
@@ -35,8 +40,9 @@ export default class Preloader extends Phaser.Scene
     create()
     {
         this.scene.launch('game')
+        this.scene.launch('prizeScreen')
 
-        this.gameScene = this.scene.get('game')
+        // this.gameScene = this.scene.get('game')
     }
 
     updateCamera() 
@@ -48,10 +54,10 @@ export default class Preloader extends Phaser.Scene
 
         const offset  = 120 * zoom
 
-        const zoom = this.gameScene.getZoom()
+    //     const zoom = this.gameScene.getZoom()
 
-       camera.setZoom(zoom)
-        camera.centerOn(1501/2 , 256 /2 + 120)
+    //    camera.setZoom(zoom)
+    //     camera.centerOn(1501/2 , 256 /2 + 120)
 
     }
 }
