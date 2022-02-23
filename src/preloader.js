@@ -27,6 +27,7 @@ export default class Preloader extends Phaser.Scene
         this.load.image('back', './assets/back2.png');
         this.load.image('restart', './assets/restart.png');
         this.load.image('congrats', './assets/Congrats2.png');
+        this.load.image('dir', './assets/dir2.png');
         this.load.image('0score', './assets/0score.png');
         this.load.image('score', './assets/Score2.png');
         this.load.image('trail', './assets/trail.png')

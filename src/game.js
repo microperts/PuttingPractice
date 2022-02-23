@@ -15,11 +15,11 @@ let ballHitSound, ballFall, graphics, curve, path
 
 let golfHole,
 golfBall,
-arrow, tween, value = 0.02, circleValue
+arrow, tween, value = 0.02, circleValue, windDirection
 
 let winTimeout, hitTimeout, slopeTimeOut
 
-let x, y
+let vec, x, y, left, right
 
 export default class Game extends Phaser.Scene{
 
@@ -43,16 +43,19 @@ export default class Game extends Phaser.Scene{
         window.clearTimeout(winTimeout)
         window.clearTimeout(hitTimeout)
         window.clearTimeout(slopeTimeOut)
-
-        circleValue =  Math.random() * (0.06 - 0.01) + 0.01
     }
 
     create()
     {
+        
+        circleValue =  Math.random() * (0.06 - 0.01) + 0.01
+        windDirection =  Math.floor(Math.random() * (25 - 0) + 25)
+
         this.helper = new Helper()
         ballHitSound = this.sound.add('ball-hit')
         ballFall = this.sound.add('ball-fall')
 
+        console.log("wind direction value" +windDirection)
         this.bg = this.add.image(460, 275, 'bg')
         golfHole = this.add.image(500,140,'golf-hole')
         golfHole.setScale(0.45)
@@ -63,8 +66,19 @@ export default class Game extends Phaser.Scene{
 
 
         this.add.text(70,500,'Slope: ' +this.degree.toFixed(2) +'°', {fontFamily: 'Chunk'})
+        left = this.add.image(90,525,'dir', undefined).setVisible(false)
+        right = this.add.image(90,525,'dir', undefined).setFlipX(true).setVisible(false)
         this.add.text(700,450,'Score: ' +score, {fontFamily: 'Chunk'})
         this.add.text(700,500,'Best Score: ' +bestScore, {fontFamily: 'Chunk'})
+
+        if(windDirection >= 40){
+            left.setVisible(true)
+            vec = new Phaser.Math.Vector2(circleValue , 0)
+        }
+        else if (windDirection < 40) {
+            right.setVisible(true)
+            vec = new Phaser.Math.Vector2(-circleValue , 0)
+        }
 
         mouse = this.input.activePointer;
 
@@ -184,13 +198,12 @@ export default class Game extends Phaser.Scene{
     slope()
     {
        slopeTimeOut =  setTimeout(()=>{
-            
-                let vec = new Phaser.Math.Vector2(circleValue , 0)
+
                 this.vx = golfBall.body.velocity.x + vec.x
                 this.vy = golfBall.body.velocity.y + vec.y
 
-                console.log("velocity x "+this.vx)
-
+                // console.log("velocity x "+this.vx
+                
                 golfBall.setVelocity(this.vx,this.vy)
                 this.slope()
         }, 50)
