@@ -1,5 +1,4 @@
 import Phaser from 'phaser' 
-import Helper from './helper';
 import Arrow from './arrow'
 import Ball from './ball'
 
@@ -51,7 +50,6 @@ export default class Game extends Phaser.Scene{
         circleValue =  Math.random() * (0.06 - 0.01) + 0.01
         windDirection =  Math.floor(Math.random() * (25 - 0) + 25)
 
-        this.helper = new Helper()
         ballHitSound = this.sound.add('ball-hit')
         ballFall = this.sound.add('ball-fall')
 

@@ -7,12 +7,13 @@ import SendToFriend from './sendToFriend';
 import GameOver from './gameOver';
 import PrizeScreen from './prizeScreen';
 import IntroScreen from './introScreen';
+import SizeHandler from './sizeHandler';
 
 
 const config = {
     type: Phaser.AUTO,
     resolution: 10,
-    width: 1500 , 
+    width: 900 , 
     height: 550,
     scale: {
         mode: Phaser.Scale.FIT,  
@@ -28,7 +29,7 @@ const config = {
     dom: {
         createContainer: true
     },
-    scene:[Preloader,Game, PrizeScreen ,IntroScreen, GameOver, SendToFriend, SendHighScore] 
+    scene:[SizeHandler,Preloader,Game, PrizeScreen ,IntroScreen, GameOver, SendToFriend, SendHighScore] 
 };
 
 let  game = new Phaser.Game(config);

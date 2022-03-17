@@ -1,5 +1,7 @@
 import Phaser from 'phaser'
 
+let handlerScene = null
+
 export default class Preloader extends Phaser.Scene
 {
     
@@ -36,6 +38,8 @@ export default class Preloader extends Phaser.Scene
         this.load.html('nameform', './form.html');
         this.load.html('highscoreForm', './highScoreForm.html');
 
+        handlerScene = this.scene.get('sizeHandler')
+
     }
 
     create()
@@ -43,7 +47,7 @@ export default class Preloader extends Phaser.Scene
         this.scene.launch('game')
         this.scene.launch('prizeScreen')
 
-        // this.gameScene = this.scene.get('game')
+        handlerScene.updateResize(this)    
     }
 
     updateCamera() 
